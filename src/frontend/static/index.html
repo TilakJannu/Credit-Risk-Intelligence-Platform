@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Credit Risk Intelligence Platform</title>
+    <link rel="stylesheet" href="/css/styles.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div>
+        <h1>Credit Risk Intelligence Platform</h1>
+        <p>Prediction, explainability, rules, and natural-language analytics.</p>
+      </div>
+      <span id="health" class="status">Checking</span>
+    </header>
+
+    <main class="layout">
+      <nav class="tabs" aria-label="Dashboard sections">
+        <button class="tab active" data-panel="dashboard">Dashboard</button>
+        <button class="tab" data-panel="eda">EDA</button>
+        <button class="tab" data-panel="evaluation">Model Performance</button>
+        <button class="tab" data-panel="prediction">Prediction</button>
+        <button class="tab" data-panel="explainability">Explainability</button>
+        <button class="tab" data-panel="rules">Rules</button>
+        <button class="tab" data-panel="chat">AI Chatbot</button>
+      </nav>
+
+      <section id="dashboard" class="panel active">
+        <div class="panel-header">
+          <h2>Executive Dashboard</h2>
+          <button id="refresh-kpis" type="button" class="btn-secondary">Refresh KPIs</button>
+        </div>
+        <div id="dashboard-kpis" class="panel-body" aria-live="polite">
+          <p class="hint">Loading live metrics…</p>
+        </div>
+      </section>
+
+      <section id="eda" class="panel">
+        <div class="panel-header">
+          <h2>Exploratory Data Analysis</h2>
+          <button id="load-eda" type="button">Reload EDA</button>
+        </div>
+        <div id="eda-output" class="panel-body" aria-live="polite"></div>
+      </section>
+
+      <section id="evaluation" class="panel">
+        <div class="panel-header">
+          <h2>Model Performance &amp; Evaluation</h2>
+          <button id="load-evaluation" type="button">Reload Metrics</button>
+        </div>
+        <div id="evaluation-output" class="panel-body" aria-live="polite"></div>
+      </section>
+
+      <section id="prediction" class="panel">
+        <div class="panel-header">
+          <h2>Risk Prediction</h2>
+        </div>
+        <div class="lookup-row">
+          <input id="customer-lookup" placeholder="Customer ID (SK_ID_CURR)" value="100002" />
+          <button id="run-lookup-prediction" type="button">Score By ID</button>
+        </div>
+        <label class="field-label" for="prediction-input">Applicant JSON (advanced)</label>
+        <textarea id="prediction-input" rows="10" spellcheck="false">[
+  {
+    "SK_ID_CURR": 100002,
+    "AMT_INCOME_TOTAL": 202500,
+    "AMT_CREDIT": 406597.5,
+    "AMT_ANNUITY": 24700.5,
+    "CODE_GENDER": "M",
+    "NAME_EDUCATION_TYPE": "Secondary / secondary special",
+    "NAME_FAMILY_STATUS": "Single / not married",
+    "NAME_HOUSING_TYPE": "House / apartment",
+    "DAYS_BIRTH": -9461,
+    "DAYS_EMPLOYED": -637
+  }
+]</textarea>
+        <button id="run-prediction" type="button">Score Applicant JSON</button>
+        <div id="prediction-output" class="panel-body result-panel" aria-live="polite"></div>
+      </section>
+
+      <section id="explainability" class="panel">
+        <div class="panel-header">
+          <h2>Explainable AI (SHAP)</h2>
+        </div>
+        <div class="lookup-row">
+          <input id="explain-customer-id" placeholder="Customer ID" value="100002" />
+          <button id="run-id-explain" type="button">Explain By ID</button>
+        </div>
+        <button id="run-explain" type="button">Explain Applicant JSON</button>
+        <div id="explain-output" class="panel-body result-panel" aria-live="polite"></div>
+        <div id="shap-waterfall" class="chart-panel"></div>
+        <div id="shap-global-chart" class="chart-panel"></div>
+        <div id="shap-global-image" class="chart-panel"></div>
+      </section>
+
+      <section id="rules" class="panel">
+        <div class="panel-header">
+          <h2>Business Rules</h2>
+        </div>
+        <div class="lookup-row">
+          <input id="rules-customer-id" placeholder="Customer ID" value="100002" />
+          <button id="load-rules" type="button">Load Customer Rules</button>
+        </div>
+        <div id="rules-output" class="panel-body result-panel" aria-live="polite"></div>
+      </section>
+
+      <section id="chat" class="panel">
+        <div class="panel-header">
+          <h2>Talk to Data</h2>
+        </div>
+        <input id="question" value="Show top 10 high-risk customers." />
+        <button id="ask-question" type="button">Ask</button>
+        <p class="hint">
+          Seven verified NL queries are documented in
+          <code>documents/talk_to_data/verified_queries.md</code>
+          and tested via <code>tests/test_talk_to_data.py</code>.
+        </p>
+        <div id="chat-output" class="panel-body result-panel" aria-live="polite"></div>
+      </section>
+    </main>
+    <script type="module" src="/js/app.js"></script>
+  </body>
+</html>

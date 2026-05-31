@@ -1,0 +1,34 @@
+.venv/
+__pycache__/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+/data/
+/data
+models/
+documents/
+*.db
+*.sqlite
+*.sqlite3
+.env
+.git/
+
+# Kaggle Credentials
+.kaggle/
+kaggle.json
+
+# IDEs and Editors
+.vscode/
+.idea/
+
+# Jupyter Notebooks
+notebooks/
+.ipynb_checkpoints/
+*/.ipynb_checkpoints/
+
+# OS-generated files
+.DS_Store
+Thumbs.db
+
+# Log files
+*.log

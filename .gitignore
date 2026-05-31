@@ -1,0 +1,51 @@
+.env
+*.db
+*.sqlite
+*.sqlite3
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.venv/
+venv/
+models/*.pkl
+models/*.joblib
+models/*.json
+documents/*.parquet
+documents/**/*.png
+documents/**/*.csv
+documents/**/*.json
+documents/**/*.md
+!documents/.gitkeep
+!documents/eda/.gitkeep
+!documents/evaluation/.gitkeep
+!documents/rules/.gitkeep
+!documents/shap/.gitkeep
+credit_risk.db
+
+# Kaggle Credentials
+.kaggle/
+kaggle.json
+
+# Dataset
+/data/
+/data
+
+
+# IDEs and Editors
+.vscode/
+.idea/
+
+# Jupyter Notebooks
+.ipynb_checkpoints/
+*/.ipynb_checkpoints/
+
+# OS-generated files
+.DS_Store
+Thumbs.db
+
+# Log files
+*.log
+
+documents/processed/*.parquet
