@@ -84,7 +84,6 @@ credit_risk_platform/
 
 ### Quick Start (Docker Compose)
 
-The repository comes pre-packaged with the database and feature store. On first startup, the models are trained automatically from this local dataset before launching the application.
 
 1. **Clone the repository and enter the directory**:
    ```bash
