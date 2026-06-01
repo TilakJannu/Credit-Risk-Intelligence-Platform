@@ -4,105 +4,244 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Credit Risk Intelligence Platform</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <!-- Font and Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@300,0..1&display=swap" rel="stylesheet" />
+    <!-- Custom tailwind config -->
+    <script id="tailwind-config">
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              primary: '#6B8E7D',
+              'primary-container': '#6B8E7D',
+              secondary: '#6B8E7D',
+              'secondary-container': '#6B8E7D',
+              tertiary: '#E2E8F0',
+              'tertiary-container': '#E2E8F0',
+              error: '#f87171',
+              'error-container': '#fee2e2',
+              background: '#F4F6F8',
+              surface: '#E2E8F0',
+              'surface-container': '#E2E8F0',
+              'surface-container-low': '#F4F6F8',
+              'surface-container-lowest': '#FFFFFF',
+              'on-primary': '#FFFFFF',
+              'on-secondary': '#FFFFFF',
+              'on-surface': '#1E293B',
+              'on-surface-variant': '#334155',
+              'outline': '#E2E8F0',
+              'outline-variant': '#E2E8F0',
+              'border-subtle': '#E2E8F0',
+            },
+            fontFamily: {
+              headline: ['Inter', 'sans-serif'],
+              body: ['Inter', 'sans-serif'],
+              mono: ['JetBrains Mono', 'monospace'],
+            }
+          }
+        }
+      }
+    </script>
     <link rel="stylesheet" href="/css/styles.css" />
   </head>
-  <body>
-    <header class="topbar">
-      <div>
-        <h1>Credit Risk Intelligence Platform</h1>
-        <p>Prediction, explainability, rules, and natural-language analytics.</p>
-      </div>
-      <span id="health" class="status">Checking</span>
-    </header>
-
-    <main class="layout">
-      <nav class="tabs" aria-label="Dashboard sections">
-        <button class="tab active" data-panel="dashboard">Dashboard</button>
-        <button class="tab" data-panel="eda">EDA</button>
-        <button class="tab" data-panel="evaluation">Model Performance</button>
-        <button class="tab" data-panel="prediction">Prediction</button>
-        <button class="tab" data-panel="explainability">Explainability</button>
-        <button class="tab" data-panel="rules">Rules</button>
-        <button class="tab" data-panel="chat">AI Chatbot</button>
-      </nav>
-
-      <section id="dashboard" class="panel active">
-        <div class="panel-header">
-          <h2>Executive Dashboard</h2>
-          <button id="refresh-kpis" type="button" class="btn-secondary">Refresh KPIs</button>
-        </div>
-        <div id="dashboard-kpis" class="panel-body" aria-live="polite">
-          <p class="hint">Loading live metrics…</p>
-        </div>
-      </section>
-
-      <section id="eda" class="panel">
-        <div class="panel-header">
-          <h2>Exploratory Data Analysis</h2>
-          <button id="load-eda" type="button">Reload EDA</button>
-        </div>
-        <div id="eda-output" class="panel-body" aria-live="polite"></div>
-      </section>
-
-      <section id="evaluation" class="panel">
-        <div class="panel-header">
-          <h2>Model Performance &amp; Evaluation</h2>
-          <button id="load-evaluation" type="button">Reload Metrics</button>
-        </div>
-        <div id="evaluation-output" class="panel-body" aria-live="polite"></div>
-      </section>
-
-      <section id="prediction" class="panel">
-        <div class="panel-header">
-          <h2>Risk Prediction</h2>
-        </div>
-        <div class="lookup-row">
-          <input id="customer-lookup" placeholder="Customer ID (SK_ID_CURR)" value="100002" />
-          <button id="run-lookup-prediction" type="button">Score By ID</button>
-        </div>
-        <div id="prediction-output" class="panel-body result-panel" aria-live="polite"></div>
-      </section>
-
-      <section id="explainability" class="panel">
-        <div class="panel-header">
-          <h2>Explainable AI (SHAP)</h2>
-        </div>
-        <div class="lookup-row">
-          <input id="explain-customer-id" placeholder="Customer ID" value="100002" />
-          <button id="run-id-explain" type="button">Explain By ID</button>
-        </div>
-        <div id="explain-output" class="panel-body result-panel" aria-live="polite"></div>
-        <div id="shap-waterfall" class="chart-panel"></div>
-      </section>
-
-      <section id="rules" class="panel">
-        <div class="panel-header">
+  <body class="bg-background text-on-surface font-body antialiased">
+    
+    <!-- Top Header and Navigation Bar (Horizontal Tab bar) -->
+    <header class="sticky top-0 z-30 bg-surface-container-lowest/90 backdrop-blur-md border-b border-outline-variant/35 w-full">
+      <!-- Top Branding and Status Row -->
+      <div class="px-6 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-outline-variant/25">
+        <!-- Logo Branding -->
+        <div class="flex items-center gap-3">
+          <div class="w-8 h-8 rounded-lg bg-primary flex items-center justify-center text-background font-bold text-lg">R</div>
           <div>
-            <h2>Customer-Specific Drivers</h2>
-            <p class="panel-subtitle">Business-readable rules automatically extracted from machine learning models to support transparent and explainable credit decisions.</p>
+            <h1 class="text-sm font-bold tracking-wider uppercase text-on-surface">RiskIntel</h1>
+            <p class="text-[10px] text-on-surface-variant tracking-widest uppercase">Credit Risk Intelligence Platform</p>
           </div>
         </div>
-        <div class="lookup-row">
-          <input id="rules-customer-id" placeholder="Customer ID" value="100002" />
-          <button id="load-rules" type="button">Load Customer Drivers</button>
+        
+        <!-- Health and Stacking Classifier Status -->
+        <div class="flex items-center gap-4 text-xs">
+          <div class="flex items-center gap-2">
+            <span class="text-on-surface-variant">System Status:</span>
+            <span id="health" class="inline-flex items-center gap-1.5 font-semibold text-primary px-2.5 py-1 rounded-full bg-primary/10 border border-primary/20">
+              Checking
+            </span>
+          </div>
         </div>
-        <div id="rules-output" class="panel-body result-panel" aria-live="polite"></div>
+      </div>
+
+      <!-- Navigation Tabs Row (Horizontal left to right toggle bar) -->
+      <div class="px-6 pt-2 bg-surface-container-low/40 flex items-center gap-1.5 overflow-x-auto scrollbar-none tabs" aria-label="Dashboard sections">
+        <button class="tab active" data-panel="dashboard">
+          <span class="material-symbols-outlined text-[18px]">dashboard</span>
+          <span>Dashboard</span>
+        </button>
+        <button class="tab" data-panel="eda">
+          <span class="material-symbols-outlined text-[18px]">analytics</span>
+          <span>EDA Report</span>
+        </button>
+        <button class="tab" data-panel="evaluation">
+          <span class="material-symbols-outlined text-[18px]">query_stats</span>
+          <span>Model Performance</span>
+        </button>
+        <button class="tab" data-panel="prediction">
+          <span class="material-symbols-outlined text-[18px]">credit_score</span>
+          <span>Risk Prediction</span>
+        </button>
+        <button class="tab" data-panel="explainability">
+          <span class="material-symbols-outlined text-[18px]">troubleshoot</span>
+          <span>Explainable AI</span>
+        </button>
+        <button class="tab" data-panel="rules">
+          <span class="material-symbols-outlined text-[18px]">gavel</span>
+          <span>Credit Risk Rules</span>
+        </button>
+        <button class="tab" data-panel="chat">
+          <span class="material-symbols-outlined text-[18px]">chat</span>
+          <span>AI Chatbot</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Workspace Area -->
+    <main class="w-full max-w-7xl mx-auto p-6 md:p-8 space-y-8 pb-24">
+      
+      <!-- Dashboard Panel -->
+      <section id="dashboard" class="panel active space-y-6">
+        <div class="flex items-center justify-between">
+          <div>
+            <h2 class="text-2xl font-headline font-bold text-on-surface tracking-tight">Executive Portfolio Dashboard</h2>
+            <p class="text-sm text-on-surface-variant">Live overview of portfolio metrics, risk segments, and model throughput.</p>
+          </div>
+          <button id="refresh-kpis" type="button" class="btn-secondary">
+            <span class="material-symbols-outlined text-[16px] mr-1.5">refresh</span>
+            Refresh Live KPIs
+          </button>
+        </div>
+        <div id="dashboard-kpis" class="space-y-6" aria-live="polite">
+          <p class="text-sm text-on-surface-variant italic">Loading live metrics…</p>
+        </div>
       </section>
 
-      <section id="chat" class="panel">
-        <div class="panel-header">
-          <h2>Talk to Data</h2>
+      <!-- EDA Panel -->
+      <section id="eda" class="panel space-y-6">
+        <div class="flex items-center justify-between">
+          <div>
+            <h2 class="text-2xl font-headline font-bold text-on-surface tracking-tight">Exploratory Data Analysis (EDA)</h2>
+            <p class="text-sm text-on-surface-variant">Deep dive analysis of target distribution, feature correlations, and missing values.</p>
+          </div>
+          <button id="load-eda" type="button" class="btn-secondary">
+            <span class="material-symbols-outlined text-[16px] mr-1.5">refresh</span>
+            Reload EDA Data
+          </button>
         </div>
-        <input id="question" value="Show top 10 high-risk customers." />
-        <button id="ask-question" type="button">Ask</button>
-        <p class="hint">
-          Seven verified NL queries are documented in
-          <code>documents/talk_to_data/verified_queries.md</code>
-          and tested via <code>tests/test_talk_to_data.py</code>.
-        </p>
-        <div id="chat-output" class="panel-body result-panel" aria-live="polite"></div>
+        <div id="eda-output" class="space-y-6" aria-live="polite"></div>
       </section>
+
+      <!-- Evaluation Panel -->
+      <section id="evaluation" class="panel space-y-6">
+        <div class="flex items-center justify-between">
+          <div>
+            <h2 class="text-2xl font-headline font-bold text-on-surface tracking-tight">Model Performance &amp; Evaluation</h2>
+            <p class="text-sm text-on-surface-variant">Cross-validation metrics, stacking ensemble stats, and validation plots.</p>
+          </div>
+          <button id="load-evaluation" type="button" class="btn-secondary">
+            <span class="material-symbols-outlined text-[16px] mr-1.5">refresh</span>
+            Reload Performance Data
+          </button>
+        </div>
+        <div id="evaluation-output" class="space-y-6" aria-live="polite"></div>
+      </section>
+
+      <!-- Prediction Panel -->
+      <section id="prediction" class="panel space-y-6">
+        <div>
+          <h2 class="text-2xl font-headline font-bold text-on-surface tracking-tight">Individual Risk Prediction</h2>
+          <p class="text-sm text-on-surface-variant">Compute and inspect credit risk scoring profiles for specific applicants.</p>
+        </div>
+        <div class="glass-panel p-6 rounded-xl border border-outline-variant/10 flex items-end gap-4 max-w-2xl">
+          <div class="flex-1 flex flex-col gap-1.5">
+            <label class="text-xs uppercase tracking-wider text-on-surface-variant font-semibold" for="customer-lookup">Customer ID (SK_ID_CURR)</label>
+            <input id="customer-lookup" class="w-full bg-surface-container/60 border border-outline-variant/35 text-on-surface font-mono rounded-lg px-4 py-2 focus:ring-1 focus:ring-primary focus:border-primary transition-all text-sm" placeholder="e.g. 100002" value="100002" />
+          </div>
+          <button id="run-lookup-prediction" type="button" class="btn-primary">
+            <span class="material-symbols-outlined text-[16px] mr-1.5">analytics</span>
+            Calculate Score
+          </button>
+        </div>
+        <div id="prediction-output" class="space-y-6" aria-live="polite"></div>
+      </section>
+
+      <!-- Explainability Panel -->
+      <section id="explainability" class="panel space-y-6">
+        <div>
+          <h2 class="text-2xl font-headline font-bold text-on-surface tracking-tight">Explainable AI (SHAP)</h2>
+          <p class="text-sm text-on-surface-variant">Look up specific applicant drivers using local feature importance and waterfall plots.</p>
+        </div>
+        <div class="glass-panel p-6 rounded-xl border border-outline-variant/10 flex items-end gap-4 max-w-2xl">
+          <div class="flex-1 flex flex-col gap-1.5">
+            <label class="text-xs uppercase tracking-wider text-on-surface-variant font-semibold" for="explain-customer-id">Customer ID (SK_ID_CURR)</label>
+            <input id="explain-customer-id" class="w-full bg-surface-container/60 border border-outline-variant/35 text-on-surface font-mono rounded-lg px-4 py-2 focus:ring-1 focus:ring-primary focus:border-primary transition-all text-sm" placeholder="e.g. 100002" value="100002" />
+          </div>
+          <button id="run-id-explain" type="button" class="btn-primary">
+            <span class="material-symbols-outlined text-[16px] mr-1.5">troubleshoot</span>
+            Explain Score
+          </button>
+        </div>
+        <div id="explain-output" class="space-y-6" aria-live="polite"></div>
+        <div id="shap-waterfall" class="space-y-6"></div>
+      </section>
+
+      <!-- Rules Panel -->
+      <section id="rules" class="panel space-y-6">
+        <div>
+          <h2 class="text-2xl font-headline font-bold text-on-surface tracking-tight">Model-Derived Credit Risk Rules</h2>
+          <p class="text-sm text-on-surface-variant">Business-readable rules automatically extracted from machine learning models to support transparent and explainable credit decisions.</p>
+        </div>
+        <div class="glass-panel p-6 rounded-xl border border-outline-variant/10 flex items-end gap-4 max-w-2xl">
+          <div class="flex-1 flex flex-col gap-1.5">
+            <label class="text-xs uppercase tracking-wider text-on-surface-variant font-semibold" for="rules-customer-id">Customer ID (SK_ID_CURR)</label>
+            <input id="rules-customer-id" class="w-full bg-surface-container/60 border border-outline-variant/35 text-on-surface font-mono rounded-lg px-4 py-2 focus:ring-1 focus:ring-primary focus:border-primary transition-all text-sm" placeholder="e.g. 100002" value="100002" />
+          </div>
+          <button id="load-rules" type="button" class="btn-primary">
+            <span class="material-symbols-outlined text-[16px] mr-1.5">gavel</span>
+            Load Risk Policies
+          </button>
+        </div>
+        <div id="rules-output" class="space-y-6" aria-live="polite"></div>
+      </section>
+
+      <!-- AI Chatbot Panel -->
+      <section id="chat" class="panel space-y-6">
+        <div>
+          <h2 class="text-2xl font-headline font-bold text-on-surface tracking-tight">NL-to-SQL Analytics Assistant</h2>
+          <p class="text-sm text-on-surface-variant">Query portfolio records in plain English. Translates requests to executable SQL with instant insights.</p>
+        </div>
+        <div class="glass-panel p-6 rounded-xl border border-outline-variant/10 flex flex-col gap-4">
+          <div class="flex flex-col gap-1.5">
+            <label class="text-xs uppercase tracking-wider text-on-surface-variant font-semibold" for="question">Ask a question about database metrics</label>
+            <div class="flex gap-4">
+              <input id="question" class="flex-1 bg-surface-container/60 border border-outline-variant/35 text-on-surface rounded-lg px-4 py-2.5 focus:ring-1 focus:ring-primary focus:border-primary transition-all text-sm" placeholder="e.g. Show top 10 high-risk customers." value="Show top 10 high-risk customers." />
+              <button id="ask-question" type="button" class="btn-primary px-6">
+                <span class="material-symbols-outlined text-[16px] mr-1.5">send</span>
+                Query
+              </button>
+            </div>
+          </div>
+          <p class="text-xs text-on-surface-variant leading-relaxed">
+            <span class="font-semibold text-primary">Pre-validated requests:</span> Seven verified NL queries are documented in 
+            <code class="font-mono text-primary bg-primary/5 px-1 py-0.5 rounded border border-primary/10">documents/talk_to_data/verified_queries.md</code>.
+          </p>
+        </div>
+        <div id="chat-output" class="space-y-6" aria-live="polite"></div>
+      </section>
+
     </main>
+
+    <!-- Script Entrypoint -->
     <script type="module" src="/js/app.js"></script>
   </body>
 </html>

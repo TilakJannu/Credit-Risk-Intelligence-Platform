@@ -45,18 +45,31 @@ export const renderWaterfall = async (element, explanation) => {
         y: values,
         text,
         textposition: "outside",
-        increasing: { marker: { color: "#c0392b" } },
-        decreasing: { marker: { color: "#1e8449" } },
-        totals: { marker: { color: "#174a7c" } },
+        increasing: { marker: { color: "#f87171" } }, // High Risk color
+        decreasing: { marker: { color: "#334155" } }, // Low Risk Slate Teal color
+        totals: { marker: { color: "#6B8E7D" } }, // Primary Sage Green color
       },
     ],
     {
-      title: `SHAP Waterfall — Customer ${explanation.customer_id ?? ""}`,
+      title: {
+        text: `SHAP Waterfall — Customer ${explanation.customer_id ?? ""}`,
+        font: { color: "#1E293B", family: "Inter", size: 15 } // Ink Blue
+      },
       margin: { t: 48, b: 120, l: 40, r: 20 },
-      xaxis: { tickangle: -35 },
-      yaxis: { title: "SHAP value (impact on default risk)" },
-      paper_bgcolor: "#ffffff",
-      plot_bgcolor: "#f8fafc",
+      xaxis: { 
+        tickangle: -35,
+        color: "#1E293B",
+        gridcolor: "rgba(30, 41, 59, 0.1)",
+        linecolor: "rgba(30, 41, 59, 0.2)"
+      },
+      yaxis: { 
+        title: { text: "SHAP value (impact on default risk)", font: { color: "#1E293B", size: 12 } },
+        color: "#1E293B",
+        gridcolor: "rgba(30, 41, 59, 0.1)",
+        linecolor: "rgba(30, 41, 59, 0.2)"
+      },
+      paper_bgcolor: "rgba(0, 0, 0, 0)",
+      plot_bgcolor: "rgba(226, 232, 240, 0.3)", // Mist Grey subtle background
     },
     { responsive: true, displayModeBar: false },
   );
@@ -77,15 +90,28 @@ export const renderGlobalImportance = async (element, features) => {
         orientation: "h",
         x: ordered.map((row) => Number(row.mean_abs_shap)),
         y: ordered.map((row) => row.feature),
-        marker: { color: "#174a7c" },
+        marker: { color: "#6B8E7D" }, // Primary Sage Green color
       },
     ],
     {
-      title: "Global Feature Importance (mean |SHAP|)",
+      title: {
+        text: "Global Feature Importance (mean |SHAP|)",
+        font: { color: "#1E293B", family: "Inter", size: 15 } // Ink Blue
+      },
       margin: { t: 40, b: 40, l: 220, r: 20 },
-      xaxis: { title: "Mean |SHAP|" },
-      paper_bgcolor: "#ffffff",
-      plot_bgcolor: "#f8fafc",
+      xaxis: { 
+        title: { text: "Mean |SHAP|", font: { color: "#1E293B", size: 12 } },
+        color: "#1E293B",
+        gridcolor: "rgba(30, 41, 59, 0.1)",
+        linecolor: "rgba(30, 41, 59, 0.2)"
+      },
+      yaxis: { 
+        color: "#1E293B",
+        gridcolor: "rgba(30, 41, 59, 0.1)",
+        linecolor: "rgba(30, 41, 59, 0.2)"
+      },
+      paper_bgcolor: "rgba(0, 0, 0, 0)",
+      plot_bgcolor: "rgba(226, 232, 240, 0.3)", // Mist Grey subtle background
     },
     { responsive: true, displayModeBar: false },
   );
