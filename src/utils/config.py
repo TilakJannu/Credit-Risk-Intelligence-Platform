@@ -92,7 +92,7 @@ def load_settings() -> Settings:
         data_dir=_env_path("DATA_DIR", "data"),
         documents_dir=_env_path("DOCUMENTS_DIR", "documents"),
         models_dir=_env_path("MODELS_DIR", "models"),
-        database_path=_env_path("DATABASE_PATH", "credit_risk.db"),
+        database_path=_env_path("DATABASE_PATH", "sql/credit_risk.db"),
         log_level=os.getenv("LOG_LEVEL", "INFO"),
         random_state=_env_int("RANDOM_STATE", 42),
         test_size=_env_float("TEST_SIZE", 0.20),

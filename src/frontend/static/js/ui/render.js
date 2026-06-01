@@ -267,6 +267,177 @@ export const renderFullExplanation = (container, waterfallHost, data) => {
   return explanation;
 };
 
+const FEATURE_BUSINESS_NAMES = {
+  EXT_SOURCE_1: "First External Credit Score (Agency 1)",
+  EXT_SOURCE_2: "Second External Credit Score (Agency 2)",
+  EXT_SOURCE_3: "Third External Credit Score (Agency 3)",
+  BUREAU_BUREAU_DEBT_TO_CREDIT_RATIO_MEAN: "Credit Bureau Average Debt-to-Credit Ratio",
+  DAYS_EMPLOYED: "Employment Duration Status",
+  DAYS_BIRTH: "Applicant Age Profile",
+  AMT_INCOME_TOTAL: "Total Annual Income",
+  AMT_CREDIT: "Requested Loan Credit Amount",
+  AMT_ANNUITY: "Requested Loan Annuity Amount",
+  AMT_GOODS_PRICE: "Goods Price Valuation",
+};
+
+const formatFeatureName = (feat) => {
+  if (FEATURE_BUSINESS_NAMES[feat]) {
+    return FEATURE_BUSINESS_NAMES[feat];
+  }
+  return feat
+    .toLowerCase()
+    .replace(/_/g, " ")
+    .replace(/\b\w/g, c => c.toUpperCase());
+};
+
+const normalizeRule = (r) => r.replace(/\s+/g, " ").trim();
+
+const GLOBAL_RULE_EXPLANATIONS = {
+  [normalizeRule("IF EXT_SOURCE_3 <= -0.986\nAND EXT_SOURCE_2 <= -0.024\nAND EXT_SOURCE_1 <= 0.444\nAND BUREAU_BUREAU_DEBT_TO_CREDIT_RATIO_MEAN <= -0.007\nTHEN High Risk")]:
+    "Applicants with weak external credit indicators and unfavorable historical credit behavior are significantly more likely to default and should be classified as High Risk.",
+  
+  [normalizeRule("IF EXT_SOURCE_3 <= -0.986\nAND EXT_SOURCE_2 <= -0.024\nAND EXT_SOURCE_1 <= 0.444\nAND BUREAU_BUREAU_DEBT_TO_CREDIT_RATIO_MEAN > -0.007\nTHEN High Risk")]:
+    "Applicants with low external credit rating scores combined with elevated debt utilization across previous credit bureau records present a severe default risk.",
+  
+  [normalizeRule("IF EXT_SOURCE_3 <= -0.986\nAND EXT_SOURCE_2 <= -0.024\nAND EXT_SOURCE_1 > 0.444\nAND EXT_SOURCE_2 <= -1.317\nTHEN High Risk")]:
+    "Applicants displaying severely low external credit scores, despite having some moderate scores, represent a high-risk credit profile and should be classified as High Risk.",
+  
+  [normalizeRule("IF EXT_SOURCE_3 <= -0.986\nAND EXT_SOURCE_2 > -0.024\nAND EXT_SOURCE_3 <= -1.737\nAND BUREAU_BUREAU_DEBT_TO_CREDIT_RATIO_MEAN > -0.004\nTHEN High Risk")]:
+    "Applicants with critical vulnerabilities in their external credit rating records alongside higher debt exposure present an elevated default risk.",
+  
+  [normalizeRule("IF EXT_SOURCE_3 > -0.986\nAND EXT_SOURCE_2 <= -0.593\nAND EXT_SOURCE_3 <= 0.168\nAND DAYS_EMPLOYED > 0.283\nTHEN High Risk")]:
+    "Applicants with moderate-to-poor external credit ratings and unstable or short-term employment history represent a high default probability."
+};
+
+const renderRuleKpiSummary = (rules) => {
+  let highCount = 0;
+  let mediumCount = 0;
+  let lowCount = 0;
+
+  rules.forEach((rule) => {
+    const upper = rule.toUpperCase();
+    if (upper.includes("HIGH RISK") || upper.includes("HIGH")) {
+      highCount++;
+    } else if (upper.includes("MEDIUM RISK") || upper.includes("MEDIUM")) {
+      mediumCount++;
+    } else if (upper.includes("LOW RISK") || upper.includes("LOW")) {
+      lowCount++;
+    }
+  });
+
+  const kpiGrid = document.createElement("div");
+  kpiGrid.className = "rules-kpi-grid";
+  kpiGrid.innerHTML = `
+    <article class="rules-kpi-card kpi-total">
+      <span class="metric-label">Total Rules Extracted</span>
+      <strong class="metric-value">${rules.length}</strong>
+    </article>
+    <article class="rules-kpi-card kpi-high">
+      <span class="metric-label">High Risk Rules</span>
+      <strong class="metric-value">${highCount}</strong>
+    </article>
+    <article class="rules-kpi-card kpi-medium">
+      <span class="metric-label">Medium Risk Rules</span>
+      <strong class="metric-value">${mediumCount}</strong>
+    </article>
+    <article class="rules-kpi-card kpi-low">
+      <span class="metric-label">Low Risk Rules</span>
+      <strong class="metric-value">${lowCount}</strong>
+    </article>
+  `;
+  return kpiGrid;
+};
+
+const renderRuleCards = (rules) => {
+  const container = document.createElement("div");
+  container.className = "rules-list-container";
+
+  rules.forEach((rule, idx) => {
+    const norm = rule.replace(/\s+/g, " ").trim();
+    
+    // Determine risk band
+    let riskBand = "Low";
+    let riskClass = "low";
+    let badgeClass = "badge-low";
+    
+    const upper = norm.toUpperCase();
+    if (upper.includes("HIGH")) {
+      riskBand = "High Risk";
+      riskClass = "high";
+      badgeClass = "badge-high";
+    } else if (upper.includes("MEDIUM")) {
+      riskBand = "Medium Risk";
+      riskClass = "medium";
+      badgeClass = "badge-medium";
+    } else if (upper.includes("LOW")) {
+      riskBand = "Low Risk";
+      riskClass = "low";
+      badgeClass = "badge-low";
+    }
+
+    // Get Business Interpretation
+    let interpretation = "";
+    const normalizedKey = normalizeRule(rule);
+    if (GLOBAL_RULE_EXPLANATIONS[normalizedKey]) {
+      interpretation = GLOBAL_RULE_EXPLANATIONS[normalizedKey];
+    } else {
+      // Try to parse as customer-specific driver rule
+      const match = rule.match(/IF\s+(\w+)\s+contributes\s+([-\d.]+)\s+to\s+this\s+applicant's\s+default\s+risk\s+THEN\s+([\w\s]+)/i);
+      const probMatch = rule.match(/IF\s+model\s+probability\s+is\s+([\d.%]+)\s+THEN\s+([\w\s]+)/i);
+      
+      if (match) {
+        const feature = match[1];
+        const val = parseFloat(match[2]);
+        const bandText = match[3].trim();
+        const formattedFeat = formatFeatureName(feature);
+        if (val < 0) {
+          interpretation = `<strong>${formattedFeat}</strong> is a key factor that mitigates this applicant's default risk (contribution: ${val.toFixed(4)}), supporting the classification of <strong>${bandText}</strong>.`;
+        } else {
+          interpretation = `<strong>${formattedFeat}</strong> is a key factor that increases this applicant's default risk (contribution: +${val.toFixed(4)}), supporting the classification of <strong>${bandText}</strong>.`;
+        }
+      } else if (probMatch) {
+        const prob = probMatch[1];
+        const bandText = probMatch[2].trim();
+        interpretation = `The applicant's predicted default probability is <strong>${prob}</strong>, placing them in the <strong>${bandText}</strong> category based on standard risk policy thresholds.`;
+      } else {
+        // Fallback parser
+        const detectedFeatures = Object.keys(FEATURE_BUSINESS_NAMES).filter(f => rule.includes(f));
+        if (detectedFeatures.length > 0) {
+          const names = detectedFeatures.map(f => `<strong>${FEATURE_BUSINESS_NAMES[f]}</strong>`);
+          let listStr = names.join(", ");
+          if (names.length > 1) {
+            const last = names.pop();
+            listStr = `${names.join(", ")} and ${last}`;
+          }
+          interpretation = `Applicant profile indicators, including ${listStr}, exceed key risk thresholds, classifying them as <strong>${riskBand}</strong>.`;
+        } else {
+          interpretation = `Applicant metrics satisfy risk criteria matching the machine learning model's <strong>${riskBand}</strong> classification.`;
+        }
+      }
+    }
+
+    const card = document.createElement("article");
+    card.className = `risk-policy-card ${riskClass}`;
+    card.innerHTML = `
+      <div class="card-header">
+        <span class="rule-num">Rule #${idx + 1}</span>
+        <span class="badge ${badgeClass}">${riskBand.toUpperCase()}</span>
+      </div>
+      <div class="card-body">
+        <p class="business-interpretation">${interpretation}</p>
+        
+        <details class="technical-rule-details">
+          <summary class="technical-rule-summary">Show Technical Rule</summary>
+          <pre class="rule-text">${rule}</pre>
+        </details>
+      </div>
+    `;
+    container.appendChild(card);
+  });
+
+  return container;
+};
+
 export const renderGlobalRules = (container, data) => {
   clearContainer(container);
   const rules = data.rules || [];
@@ -274,14 +445,8 @@ export const renderGlobalRules = (container, data) => {
     showMessage(container, "No global business rules available.", "info");
     return;
   }
-  const list = document.createElement("ol");
-  list.className = "rule-list";
-  rules.forEach((rule) => {
-    const item = document.createElement("li");
-    item.innerHTML = `<pre class="rule-text">${rule}</pre>`;
-    list.appendChild(item);
-  });
-  container.appendChild(list);
+  container.appendChild(renderRuleKpiSummary(rules));
+  container.appendChild(renderRuleCards(rules));
 };
 
 export const renderRules = (container, data) => {
@@ -308,14 +473,8 @@ export const renderRules = (container, data) => {
     return;
   }
 
-  const list = document.createElement("ol");
-  list.className = "rule-list";
-  rules.forEach((rule) => {
-    const item = document.createElement("li");
-    item.innerHTML = `<pre class="rule-text">${rule}</pre>`;
-    list.appendChild(item);
-  });
-  container.appendChild(list);
+  container.appendChild(renderRuleKpiSummary(rules));
+  container.appendChild(renderRuleCards(rules));
 
   if (data.top_risk_drivers?.length) {
     const drivers = document.createElement("div");

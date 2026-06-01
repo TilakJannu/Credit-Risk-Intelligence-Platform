@@ -134,16 +134,46 @@ def _specific_rules(customer: pd.DataFrame) -> Dict[str, Any]:
     explanation = ExplanationService().explain_applicants(customer, include_lime=False)[0]
     overall = _response_with_overall_risk(predictions)["overall_risk"]
     positive = explanation["feature_shap"]["top_positive_contributors"]
-    rules = [
-        (
-            f"IF {item['feature']} contributes {float(item['shap_value']):.4f} "
-            f"to this applicant's default risk THEN {overall['risk_band']} Risk"
-        )
-        for item in positive
-        if float(item["shap_value"]) > 0
-    ]
+    negative = explanation["feature_shap"]["top_negative_contributors"]
+    
+    rules = []
+    # High Risk Rules: strong positive contributors
+    for item in positive:
+        val = float(item["shap_value"])
+        if val > 0.05:
+            rules.append(
+                f"IF {item['feature']} contributes {val:.4f} "
+                f"to this applicant's default risk THEN High Risk"
+            )
+            
+    # Medium Risk Rules: moderate positive/negative contributors
+    for item in positive:
+        val = float(item["shap_value"])
+        if 0 < val <= 0.05:
+            rules.append(
+                f"IF {item['feature']} contributes {val:.4f} "
+                f"to this applicant's default risk THEN Medium Risk"
+            )
+    for item in negative:
+        val = float(item["shap_value"])
+        if -0.05 <= val < 0:
+            rules.append(
+                f"IF {item['feature']} contributes {val:.4f} "
+                f"to this applicant's default risk THEN Medium Risk"
+            )
+            
+    # Low Risk Rules: strong negative contributors (mitigants)
+    for item in negative:
+        val = float(item["shap_value"])
+        if val < -0.05:
+            rules.append(
+                f"IF {item['feature']} contributes {val:.4f} "
+                f"to this applicant's default risk THEN Low Risk"
+            )
+            
     if not rules:
         rules = [f"IF model probability is {overall['default_probability']:.2%} THEN {overall['risk_band']} Risk"]
+        
     return {
         "customer_id": overall["customer_id"],
         "overall_risk": overall,

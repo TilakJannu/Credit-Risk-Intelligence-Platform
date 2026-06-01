@@ -25,13 +25,11 @@ const evaluationOutput = document.getElementById("evaluation-output");
 const predictionOutput = document.getElementById("prediction-output");
 const explainOutput = document.getElementById("explain-output");
 const rulesOutput = document.getElementById("rules-output");
-const globalRulesOutput = document.getElementById("global-rules-output");
 const chatOutput = document.getElementById("chat-output");
 const shapWaterfall = document.getElementById("shap-waterfall");
 const shapGlobalImage = document.getElementById("shap-global-image");
 
 let globalShapLoaded = false;
-let globalRulesLoaded = false;
 
 const activatePanel = (panelId) => {
   document.querySelectorAll(".tab").forEach((tab) => {
@@ -49,8 +47,8 @@ const activatePanel = (panelId) => {
   if (panelId === "explainability" && !globalShapLoaded) {
     loadGlobalShapPanel();
   }
-  if (panelId === "rules" && !globalRulesLoaded) {
-    loadGlobalRulesPanel();
+  if (panelId === "rules" && !rulesOutput.childElementCount) {
+    document.getElementById("load-rules").click();
   }
 };
 
@@ -96,16 +94,7 @@ const loadGlobalShapPanel = async () => {
   }
 };
 
-const loadGlobalRulesPanel = async () => {
-  globalRulesOutput.innerHTML = "<p class=\"hint\">Loading global business rules…</p>";
-  try {
-    const data = await requestJson("/rules");
-    renderGlobalRules(globalRulesOutput, data);
-    globalRulesLoaded = true;
-  } catch (error) {
-    showError(globalRulesOutput, error);
-  }
-};
+
 
 const renderExplainResponse = (data) => {
   renderFullExplanation(explainOutput, shapWaterfall, data);

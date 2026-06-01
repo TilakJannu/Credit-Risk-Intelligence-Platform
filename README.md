@@ -88,7 +88,7 @@ The raw Kaggle dataset is ~2.6 GB and has been excluded from the GitHub reposito
 2. Create a `/data` directory in the project root and place the downloaded CSV files inside it.
 
 > [!NOTE]
-> Pre-trained models (`models/`), pre-computed metrics (`documents/`), and the SQLite database (`credit_risk.db`) are already committed to the repository, meaning you can run the web application or docker-compose setup directly without running the data extraction and training scripts.
+> Pre-trained models (`models/`), pre-computed metrics (`documents/`), and the SQLite database (`sql/credit_risk.db`) are already committed to the repository, meaning you can run the web application or docker-compose setup directly without running the data extraction and training scripts.
 
 ### 2. Local environment
 
@@ -140,7 +140,7 @@ Dashboard tabs: Executive Dashboard · EDA · Model Performance · Prediction ·
 docker-compose up --build
 ```
 
-This starts the containerized FastAPI web application and database. Pre-built `models/`, `documents/`, and `credit_risk.db` are mounted automatically via volumes (defined in `docker-compose.yml`) so the application is ready to serve immediately. If needed, the data pipelines can be run inside or outside the container.
+This starts the containerized FastAPI web application and database. Pre-built `models/`, `documents/`, and `sql/credit_risk.db` are mounted automatically via volumes (defined in `docker-compose.yml`) so the application is ready to serve immediately. If needed, the data pipelines can be run inside or outside the container.
 
 ---
 

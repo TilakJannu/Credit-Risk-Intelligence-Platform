@@ -91,7 +91,14 @@ class DatabaseManager:
         """Insert business rules into the database."""
         if not rules:
             return
-        rows = [{"rule_text": rule, "risk_band": "HIGH"} for rule in rules]
+        rows = []
+        for rule in rules:
+            band = "HIGH"
+            if "THEN Medium Risk" in rule:
+                band = "MEDIUM"
+            elif "THEN Low Risk" in rule:
+                band = "LOW"
+            rows.append({"rule_text": rule, "risk_band": band})
         with self.connect() as connection:
             connection.execute("DELETE FROM rules")
             pd.DataFrame(rows).to_sql("rules", connection, if_exists="append", index=False)

@@ -22,7 +22,7 @@ documents/**/*.md
 !documents/evaluation/.gitkeep
 !documents/rules/.gitkeep
 !documents/shap/.gitkeep
-credit_risk.db
+sql/credit_risk.db
 
 # Kaggle Credentials
 .kaggle/
