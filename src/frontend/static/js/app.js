@@ -2,7 +2,6 @@ import {
   loadDashboardKpis,
   loadEdaReport,
   loadEvaluation,
-  loadGlobalShap,
   requestJson,
 } from "./ui/api.js";
 import {
@@ -27,9 +26,6 @@ const explainOutput = document.getElementById("explain-output");
 const rulesOutput = document.getElementById("rules-output");
 const chatOutput = document.getElementById("chat-output");
 const shapWaterfall = document.getElementById("shap-waterfall");
-const shapGlobalImage = document.getElementById("shap-global-image");
-
-let globalShapLoaded = false;
 
 const activatePanel = (panelId) => {
   document.querySelectorAll(".tab").forEach((tab) => {
@@ -43,9 +39,6 @@ const activatePanel = (panelId) => {
   }
   if (panelId === "evaluation" && !evaluationOutput.childElementCount) {
     loadEvaluationPanel();
-  }
-  if (panelId === "explainability" && !globalShapLoaded) {
-    loadGlobalShapPanel();
   }
   if (panelId === "rules" && !rulesOutput.childElementCount) {
     document.getElementById("load-rules").click();
@@ -84,15 +77,7 @@ const loadEvaluationPanel = async () => {
   }
 };
 
-const loadGlobalShapPanel = async () => {
-  try {
-    const data = await loadGlobalShap();
-    renderSummaryImage(shapGlobalImage, data.summary_chart_url);
-    globalShapLoaded = true;
-  } catch (error) {
-    showError(shapGlobalImage, error);
-  }
-};
+
 
 
 

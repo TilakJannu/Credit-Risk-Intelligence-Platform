@@ -9,7 +9,7 @@ from typing import Dict, List
 from src.talk_to_data.prompt_templates import build_insight_prompt
 from src.utils.config import settings
 from src.utils.logger import get_logger
-
+import google.generativeai as genai
 
 logger = get_logger(__name__)
 
@@ -35,7 +35,7 @@ class GeminiInsightGenerator:
         """Initialize the Gemini insight generator."""
         if not settings.gemini_api_key:
             raise RuntimeError("GEMINI_API_KEY is required for business insight generation")
-        import google.generativeai as genai
+        
 
         genai.configure(api_key=settings.gemini_api_key)
         self.model = genai.GenerativeModel(settings.gemini_model)

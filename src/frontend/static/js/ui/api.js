@@ -17,6 +17,4 @@ export const loadDashboardKpis = () => requestJson("/dashboard/kpis");
 
 export const loadEdaReport = () => requestJson("/eda");
 
-export const loadGlobalShap = () => requestJson("/shap/global");
-
 export const loadEvaluation = () => requestJson("/evaluation");
