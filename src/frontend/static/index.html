@@ -60,22 +60,6 @@
           <input id="customer-lookup" placeholder="Customer ID (SK_ID_CURR)" value="100002" />
           <button id="run-lookup-prediction" type="button">Score By ID</button>
         </div>
-        <label class="field-label" for="prediction-input">Applicant JSON (advanced)</label>
-        <textarea id="prediction-input" rows="10" spellcheck="false">[
-  {
-    "SK_ID_CURR": 100002,
-    "AMT_INCOME_TOTAL": 202500,
-    "AMT_CREDIT": 406597.5,
-    "AMT_ANNUITY": 24700.5,
-    "CODE_GENDER": "M",
-    "NAME_EDUCATION_TYPE": "Secondary / secondary special",
-    "NAME_FAMILY_STATUS": "Single / not married",
-    "NAME_HOUSING_TYPE": "House / apartment",
-    "DAYS_BIRTH": -9461,
-    "DAYS_EMPLOYED": -637
-  }
-]</textarea>
-        <button id="run-prediction" type="button">Score Applicant JSON</button>
         <div id="prediction-output" class="panel-body result-panel" aria-live="polite"></div>
       </section>
 
@@ -87,20 +71,22 @@
           <input id="explain-customer-id" placeholder="Customer ID" value="100002" />
           <button id="run-id-explain" type="button">Explain By ID</button>
         </div>
-        <button id="run-explain" type="button">Explain Applicant JSON</button>
         <div id="explain-output" class="panel-body result-panel" aria-live="polite"></div>
         <div id="shap-waterfall" class="chart-panel"></div>
-        <div id="shap-global-chart" class="chart-panel"></div>
         <div id="shap-global-image" class="chart-panel"></div>
       </section>
 
       <section id="rules" class="panel">
         <div class="panel-header">
-          <h2>Business Rules</h2>
+          <h2>Global Business Rules</h2>
+        </div>
+        <div id="global-rules-output" class="panel-body result-panel" aria-live="polite"></div>
+        <div class="panel-header" style="margin-top: 32px;">
+          <h2>Customer-Specific Drivers</h2>
         </div>
         <div class="lookup-row">
           <input id="rules-customer-id" placeholder="Customer ID" value="100002" />
-          <button id="load-rules" type="button">Load Customer Rules</button>
+          <button id="load-rules" type="button">Load Customer Drivers</button>
         </div>
         <div id="rules-output" class="panel-body result-panel" aria-live="polite"></div>
       </section>

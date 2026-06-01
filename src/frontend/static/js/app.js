@@ -13,10 +13,11 @@ import {
   renderFullExplanation,
   renderPrediction,
   renderRules,
+  renderGlobalRules,
   showError,
   clearContainer,
 } from "./ui/render.js";
-import { renderGlobalImportance, renderSummaryImage } from "./ui/charts.js";
+import { renderSummaryImage } from "./ui/charts.js";
 
 const dashboardKpis = document.getElementById("dashboard-kpis");
 const edaOutput = document.getElementById("eda-output");
@@ -24,12 +25,13 @@ const evaluationOutput = document.getElementById("evaluation-output");
 const predictionOutput = document.getElementById("prediction-output");
 const explainOutput = document.getElementById("explain-output");
 const rulesOutput = document.getElementById("rules-output");
+const globalRulesOutput = document.getElementById("global-rules-output");
 const chatOutput = document.getElementById("chat-output");
 const shapWaterfall = document.getElementById("shap-waterfall");
-const shapGlobalChart = document.getElementById("shap-global-chart");
 const shapGlobalImage = document.getElementById("shap-global-image");
 
 let globalShapLoaded = false;
+let globalRulesLoaded = false;
 
 const activatePanel = (panelId) => {
   document.querySelectorAll(".tab").forEach((tab) => {
@@ -46,6 +48,9 @@ const activatePanel = (panelId) => {
   }
   if (panelId === "explainability" && !globalShapLoaded) {
     loadGlobalShapPanel();
+  }
+  if (panelId === "rules" && !globalRulesLoaded) {
+    loadGlobalRulesPanel();
   }
 };
 
@@ -84,11 +89,21 @@ const loadEvaluationPanel = async () => {
 const loadGlobalShapPanel = async () => {
   try {
     const data = await loadGlobalShap();
-    await renderGlobalImportance(shapGlobalChart, data.feature_importance);
     renderSummaryImage(shapGlobalImage, data.summary_chart_url);
     globalShapLoaded = true;
   } catch (error) {
-    shapGlobalChart.innerHTML = `<p class="hint">${error.message}</p>`;
+    showError(shapGlobalImage, error);
+  }
+};
+
+const loadGlobalRulesPanel = async () => {
+  globalRulesOutput.innerHTML = "<p class=\"hint\">Loading global business rules…</p>";
+  try {
+    const data = await requestJson("/rules");
+    renderGlobalRules(globalRulesOutput, data);
+    globalRulesLoaded = true;
+  } catch (error) {
+    showError(globalRulesOutput, error);
   }
 };
 
@@ -108,23 +123,7 @@ document.getElementById("refresh-kpis").addEventListener("click", refreshDashboa
 document.getElementById("load-eda").addEventListener("click", loadEdaPanel);
 document.getElementById("load-evaluation").addEventListener("click", loadEvaluationPanel);
 
-document.getElementById("run-prediction").addEventListener("click", async () => {
-  clearContainer(predictionOutput);
-  predictionOutput.innerHTML = "<p class=\"hint\">Scoring applicant…</p>";
-  try {
-    const applicants = JSON.parse(document.getElementById("prediction-input").value);
-    renderPrediction(
-      predictionOutput,
-      await requestJson("/predict", {
-        method: "POST",
-        body: JSON.stringify({ applicants }),
-      }),
-    );
-    refreshDashboard();
-  } catch (error) {
-    showError(predictionOutput, error);
-  }
-});
+// Prediction text area and button removed. Identification lookup is the only prediction entry.
 
 document.getElementById("run-lookup-prediction").addEventListener("click", async () => {
   clearContainer(predictionOutput);
@@ -143,20 +142,7 @@ document.getElementById("run-lookup-prediction").addEventListener("click", async
   }
 });
 
-document.getElementById("run-explain").addEventListener("click", async () => {
-  explainOutput.innerHTML = "<p class=\"hint\">Generating SHAP explanation…</p>";
-  try {
-    const applicants = JSON.parse(document.getElementById("prediction-input").value);
-    await renderExplainResponse(
-      await requestJson("/explain", {
-        method: "POST",
-        body: JSON.stringify({ applicants }),
-      }),
-    );
-  } catch (error) {
-    showError(explainOutput, error);
-  }
-});
+// Explain Applicant JSON button removed. Identification lookup is the only explain entry.
 
 document.getElementById("run-id-explain").addEventListener("click", async () => {
   explainOutput.innerHTML = "<p class=\"hint\">Generating SHAP explanation…</p>";

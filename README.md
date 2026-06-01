@@ -55,7 +55,7 @@ See also `ARCHITECTURE.md` for extended design notes.
 
 ```text
 credit_risk_platform/
-├── data/                    # Home Credit CSV files
+├── data/                    # Home Credit CSV files (Excluded from GitHub; download from Kaggle)
 ├── documents/               # EDA, evaluation, SHAP, rules, talk-to-data docs
 ├── models/                  # Serialized .pkl artifacts
 ├── notebooks/               # EDA notebook + eda.py runner
@@ -82,7 +82,15 @@ credit_risk_platform/
 
 ## Setup and Run
 
-### 1. Local environment
+### 1. Download Dataset
+The raw Kaggle dataset is ~2.6 GB and has been excluded from the GitHub repository (`/data/` is in `.gitignore`) to optimize repo size. To run the full data pipeline and model retraining:
+1. Download the dataset from [Home Credit Default Risk on Kaggle](https://www.kaggle.com/competitions/home-credit-default-risk/data).
+2. Create a `/data` directory in the project root and place the downloaded CSV files inside it.
+
+> [!NOTE]
+> Pre-trained models (`models/`), pre-computed metrics (`documents/`), and the SQLite database (`credit_risk.db`) are already committed to the repository, meaning you can run the web application or docker-compose setup directly without running the data extraction and training scripts.
+
+### 2. Local environment
 
 ```bash
 python -m venv .venv
@@ -126,13 +134,13 @@ Open **http://localhost:8000**
 
 Dashboard tabs: Executive Dashboard · EDA · Model Performance · Prediction · Explainability · Rules · AI Chatbot
 
-### 4. Docker (single command)
+### 4. Part 5: Dockerized Deployment (Single Command)
 
 ```bash
 docker-compose up --build
 ```
 
-Requires pre-built `models/`, `documents/`, and `credit_risk.db` (or run the pipeline before/after first container start). Mount volumes are configured in `docker-compose.yml`.
+This starts the containerized FastAPI web application and database. Pre-built `models/`, `documents/`, and `credit_risk.db` are mounted automatically via volumes (defined in `docker-compose.yml`) so the application is ready to serve immediately. If needed, the data pipelines can be run inside or outside the container.
 
 ---
 
@@ -338,13 +346,13 @@ Engineered features are grouped into business categories (bureau, repayment, dem
 | Applicant name lookup unsupported | Expected — Home Credit has no name field |
 | LIME uses 800-row background sample | Precompute slimmer LIME background artifact |
 | Model drift not monitored | Scheduled retraining + drift detection |
-| Auto-generated presentation PDF is a baseline | Replace with your own branded deck + UI screenshots |
+
 
 ---
 
 ## Phase 5 — Final QA and Submission Readiness
 
-Run automated smoke tests before submitting:
+Run automated smoke tests:
 
 ```bash
 # Offline API + artifact checks (fast)
@@ -367,25 +375,6 @@ Unit tests:
 python -m unittest tests.test_platform_smoke.ArtifactSmokeTests -v
 python -m unittest tests.test_talk_to_data -v
 ```
-
-## Submission Presentation (Required)
-
-NeoStats submission requires a presentation PDF with output screenshots in the `documents/` folder.
-
-**Generate a baseline PDF (metrics + chart screenshots):**
-
-```bash
-python scripts/generate_presentation_pdf.py
-```
-
-Output: `documents/project_presentation.pdf` — replace with your own branded deck before submitting.
-
-Instructions: `documents/SUBMISSION_PRESENTATION.md`  
-Form copy-paste answers: `documents/SUBMISSION_FORM_ANSWERS.md`
-
-## Talk-to-Data Without Gemini
-
-If `GEMINI_API_KEY` is empty, the chatbot uses **offline fallback** for the 7 verified catalog questions (SQL + template business insight). Response field `mode` is `"fallback"` or `"gemini"`.
 
 ## Explainability (aligned to final stacked score)
 
@@ -423,6 +412,4 @@ See `.env.example` for all options. Key variables:
 
 ---
 
-## License and Data
 
-Uses the Home Credit Default Risk competition dataset. Ensure Kaggle terms are respected when distributing data.

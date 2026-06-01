@@ -133,7 +133,7 @@ def _specific_rules(customer: pd.DataFrame) -> Dict[str, Any]:
     predictions = predict_from_records(customer.to_dict(orient="records"))
     explanation = ExplanationService().explain_applicants(customer, include_lime=False)[0]
     overall = _response_with_overall_risk(predictions)["overall_risk"]
-    positive = explanation["stacking_shap"]["top_positive_contributors"]
+    positive = explanation["feature_shap"]["top_positive_contributors"]
     rules = [
         (
             f"IF {item['feature']} contributes {float(item['shap_value']):.4f} "

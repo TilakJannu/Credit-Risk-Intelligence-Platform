@@ -100,15 +100,6 @@ export const renderDashboardKpis = (container, data) => {
   }
 
   container.appendChild(riskSection);
-
-  const meta = document.createElement("div");
-  meta.className = "kpi-grid meta-kpis";
-  meta.innerHTML = `
-    <article class="metric-card"><span class="metric-label">Model</span><strong class="metric-value">Stacking Ensemble</strong></article>
-    <article class="metric-card"><span class="metric-label">Risk Bands</span><strong class="metric-value">LOW / MEDIUM / HIGH</strong></article>
-    <article class="metric-card"><span class="metric-label">Database</span><strong class="metric-value">SQLite</strong></article>
-  `;
-  container.appendChild(meta);
 };
 
 export const renderPrediction = (container, data) => {
@@ -274,6 +265,23 @@ export const renderFullExplanation = (container, waterfallHost, data) => {
   }
 
   return explanation;
+};
+
+export const renderGlobalRules = (container, data) => {
+  clearContainer(container);
+  const rules = data.rules || [];
+  if (!rules.length) {
+    showMessage(container, "No global business rules available.", "info");
+    return;
+  }
+  const list = document.createElement("ol");
+  list.className = "rule-list";
+  rules.forEach((rule) => {
+    const item = document.createElement("li");
+    item.innerHTML = `<pre class="rule-text">${rule}</pre>`;
+    list.appendChild(item);
+  });
+  container.appendChild(list);
 };
 
 export const renderRules = (container, data) => {
