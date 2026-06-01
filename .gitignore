@@ -9,15 +9,19 @@ __pycache__/
 .ruff_cache/
 .venv/
 venv/
+# Model Artifacts
 models/*.pkl
 models/*.joblib
+models/*.bin
+models/*.model
 models/*.json
+!models/.gitkeep
 documents/*.parquet
 documents/**/*.png
 documents/**/*.csv
 documents/**/*.json
 documents/**/*.md
-!documents/.gitkeep
+!documents/processed/.gitkeep
 !documents/eda/.gitkeep
 !documents/evaluation/.gitkeep
 !documents/rules/.gitkeep

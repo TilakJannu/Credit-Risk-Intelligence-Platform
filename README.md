@@ -82,65 +82,87 @@ credit_risk_platform/
 
 ## Setup and Run
 
-### 1. Download Dataset
-The raw Kaggle dataset is ~2.6 GB and has been excluded from the GitHub repository (`/data/` is in `.gitignore`) to optimize repo size. To run the full data pipeline and model retraining:
-1. Download the dataset from [Home Credit Default Risk on Kaggle](https://www.kaggle.com/competitions/home-credit-default-risk/data).
-2. Create a `/data` directory in the project root and place the downloaded CSV files inside it.
+### Quick Start (Docker Compose)
 
-> [!NOTE]
-> Pre-trained models (`models/`), pre-computed metrics (`documents/`), and the SQLite database (`sql/credit_risk.db`) are already committed to the repository, meaning you can run the web application or docker-compose setup directly without running the data extraction and training scripts.
+The repository comes pre-packaged with the database and feature store. On first startup, the models are trained automatically from this local dataset before launching the application.
 
-### 2. Local environment
+1. **Clone the repository and enter the directory**:
+   ```bash
+   git clone <repo-url>
+   cd Credit-Risk-Intelligence-Platform
+   ```
 
-```bash
-python -m venv .venv
-.venv\Scripts\activate          # Windows
-# source .venv/bin/activate     # Linux / macOS
-pip install -r requirements.txt
-copy .env.example .env          # Windows
-# cp .env.example .env          # Linux / macOS
-```
+2. **Setup your environment variables**:
+   ```bash
+   cp .env.example .env
+   ```
+   Open `.env` and set your `GEMINI_API_KEY` to enable the Talk-to-Data chatbot.
 
-Set `GEMINI_API_KEY` in `.env` before using the Talk-to-Data chatbot.
+3. **Launch the entire platform with a single command**:
+   ```bash
+   docker compose up --build
+   ```
 
-### 2. Build pipeline artifacts (first time)
+The application will build, verify the presence of model artifacts, initialize the database (if missing), and boot the server.
 
-Run in order:
+### Model Artifacts
 
-```bash
-python -m src.data.loader
-python -m notebooks.eda
-python -m src.data.feature_engineering
-python -m src.data.preprocessor
-python -m src.ml.train
-python -m src.ml.evaluate
-python -m src.database.build_database
-```
+Model artifacts are intentionally excluded from version control.
 
-Optional post-training artifacts:
+During the first startup:
+1. Models are trained automatically (using the local dataset).
+2. Artifacts are generated in the `/models` directory.
+3. The application launches automatically.
 
-```bash
-python -c "from src.explainability.rule_generator import generate_business_rules; generate_business_rules()"
-python -c "from src.explainability.shap_engine import ShapExplainer; ShapExplainer().save_global_outputs(__import__('pandas').read_parquet('documents/processed/x_train_scored.parquet').head(500))"
-```
+Subsequent startups reuse existing artifacts in `/models` and skip training.
 
-### 3. Start the application
+### Accessing the Platform
 
-```bash
-uvicorn src.api.main:app --host 0.0.0.0 --port 8000
-```
+* **Frontend Dashboard**: [http://localhost:8000](http://localhost:8000)
+* **Interactive API Documentation (Swagger)**: [http://localhost:8000/docs](http://localhost:8000/docs)
 
-Open **http://localhost:8000**
+---
 
-Dashboard tabs: Executive Dashboard · EDA · Model Performance · Prediction · Explainability · Rules · AI Chatbot
+### Local Development Setup
 
-### 4. Part 5: Dockerized Deployment (Single Command)
+If you prefer to run the application locally without Docker:
 
-```bash
-docker-compose up --build
-```
+1. **Create and activate a virtual environment**:
+   ```bash
+   python -m venv .venv
+   .venv\Scripts\activate          # Windows
+   # source .venv/bin/activate     # Linux / macOS
+   ```
 
-This starts the containerized FastAPI web application and database. Pre-built `models/`, `documents/`, and `sql/credit_risk.db` are mounted automatically via volumes (defined in `docker-compose.yml`) so the application is ready to serve immediately. If needed, the data pipelines can be run inside or outside the container.
+2. **Install dependencies**:
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+3. **Start the application**:
+   ```bash
+   uvicorn src.api.main:app --host 0.0.0.0 --port 8000
+   ```
+
+---
+
+### Pipeline Reconstruction (Advanced / Optional)
+
+If you have downloaded the full Kaggle dataset and want to re-run the entire ETL and training pipeline from scratch:
+
+1. Download the raw CSVs from [Home Credit Default Risk on Kaggle](https://www.kaggle.com/competitions/home-credit-default-risk/data).
+2. Place them under a root `/data` folder.
+3. Run the pipeline stages in sequence:
+   ```bash
+   python -m src.data.loader
+   python -m notebooks.eda
+   python -m src.data.feature_engineering
+   python -m src.data.preprocessor
+   python -m src.ml.train
+   python -m src.ml.evaluate
+   python -m src.database.build_database
+   ```
+   Data volumes are handled automatically via volumes (defined in `docker-compose.yml`) so the application is ready to serve immediately. If needed, the data pipelines can be run inside or outside the container.
 
 ---
 

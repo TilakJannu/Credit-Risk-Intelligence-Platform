@@ -178,18 +178,24 @@ def train_stacking_ensemble(
 
 def train_all() -> Dict[str, object]:
     """Run anomaly detection, base model, and stacking training phases."""
+    logger.info("Starting model data preparation...")
+    prepare_model_data()
+
     data = load_processed_data()
     x_train = data["x_train"]  # type: ignore[assignment]
     x_val = data["x_val"]  # type: ignore[assignment]
     y_train = data["y_train"]  # type: ignore[assignment]
     y_val = data["y_val"]  # type: ignore[assignment]
 
+    logger.info("Training Isolation Forest anomaly detector...")
     iso_forest = train_isolation_forest(x_train)
     x_train_scored, x_val_scored = append_anomaly_score(iso_forest, x_train, x_val)
     x_train_scored.to_parquet(settings.documents_dir / "processed" / "x_train_scored.parquet", index=False)
     x_val_scored.to_parquet(settings.documents_dir / "processed" / "x_val_scored.parquet", index=False)
 
+    logger.info("Training base models...")
     models = train_base_models(x_train_scored, y_train, x_val_scored, y_val)
+    logger.info("Training stacking ensemble...")
     meta_learner = train_stacking_ensemble(models, x_train_scored, y_train, x_val_scored, y_val)
     metadata = {
         "model_version": datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ"),
@@ -199,6 +205,19 @@ def train_all() -> Dict[str, object]:
         "base_model_order": list(models),
     }
     write_json(metadata, settings.models_dir / "model_metadata.json")
+
+    # Generate SHAP explainer and save global outputs
+    logger.info("Generating SHAP artifacts...")
+    from src.explainability.shap_engine import ShapExplainer
+    shap_explainer = ShapExplainer()
+    shap_explainer.save_global_outputs(x_train_scored.head(500))
+
+    # Generate evaluation metrics
+    logger.info("Generating evaluation metrics and reports...")
+    from src.ml.evaluate import evaluate_models
+    evaluate_models()
+
+    logger.info("Model training and artifact generation completed successfully.")
     return {"iso_forest": iso_forest, "models": models, "meta_learner": meta_learner}
 
 

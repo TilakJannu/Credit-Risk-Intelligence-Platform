@@ -2,7 +2,6 @@ services:
   credit-risk-platform:
     build: .
     container_name: credit-risk-platform
-    # Use standard array syntax for env_file to ensure compatibility across older Compose versions (v1 & v2 < 2.24)
     env_file:
       - .env
     ports:
@@ -11,6 +10,12 @@ services:
       - ./data:/app/data:ro
       - ./models:/app/models
       - ./documents:/app/documents
-      # Mount the sql directory so the container has access to the schema and can read/write the database safely.
       - ./sql:/app/sql
+      - ./logs:/app/logs
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
