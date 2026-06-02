@@ -44,14 +44,44 @@ def _normalize_question(question: str) -> str:
 
 
 def match_verified_sql(question: str) -> Optional[str]:
-    """Return SQL for a verified question using exact or fuzzy match."""
+    """Return SQL for a verified question using exact or fuzzy word overlap match."""
     normalized = _normalize_question(question)
     if normalized in VERIFIED_SQL_MAP:
         return VERIFIED_SQL_MAP[normalized]
+    
+    # Try exact substring matching first
     for verified in VERIFIED_QUERIES:
         key = _normalize_question(verified.question)
         if key == normalized or key in normalized or normalized in key:
             return VERIFIED_SQL_MAP.get(key)
+            
+    # Try word set overlap (Jaccard similarity) to match variations in phrasing
+    def get_words(text: str) -> set[str]:
+        return set(re.findall(r"\w+", text.lower()))
+        
+    q_words = get_words(normalized)
+    if not q_words:
+        return None
+        
+    best_match = None
+    best_score = 0.0
+    
+    for verified in VERIFIED_QUERIES:
+        key = _normalize_question(verified.question)
+        k_words = get_words(key)
+        intersection = q_words.intersection(k_words)
+        union = q_words.union(k_words)
+        score = len(intersection) / len(union) if union else 0.0
+        
+        # Require at least 40% word overlap to prevent false positive matches
+        if score > best_score and score >= 0.4:
+            best_score = score
+            best_match = key
+            
+    if best_match:
+        logger.info("Fuzzy matched '%s' to '%s' with Jaccard score %.2f", question, best_match, best_score)
+        return VERIFIED_SQL_MAP.get(best_match)
+        
     return None
 
 

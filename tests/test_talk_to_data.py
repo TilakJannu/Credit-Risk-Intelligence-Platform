@@ -59,6 +59,22 @@ class TalkToDataOfflineTests(unittest.TestCase):
                 f"Missing few-shot example for: {case.question}",
             )
 
+    def test_fuzzy_matching_jaccard(self) -> None:
+        from src.talk_to_data.fallback import match_verified_sql
+
+        # Test exact match
+        sql_exact = match_verified_sql("Which occupation has the highest default rate?")
+        self.assertIsNotNone(sql_exact)
+
+        # Test word variation ("experiences" instead of "has")
+        sql_experiences = match_verified_sql("Which occupation experiences the highest default rate?")
+        self.assertEqual(sql_exact, sql_experiences)
+
+        # Test phrasing difference
+        sql_phrasing = match_verified_sql("Show the top 10 highest risk customers")
+        sql_verified = match_verified_sql("Show top 10 high-risk customers.")
+        self.assertEqual(sql_phrasing, sql_verified)
+
 
 if __name__ == "__main__":
     unittest.main()
